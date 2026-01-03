@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>家的味道 · 自定义抽签</title>
+<style>
+body {
+  font-family:'PingFang SC','Microsoft YaHei',sans-serif;
+  background: linear-gradient(135deg,#ff6b6b,#ffd93d,#ffb347,#fff5e6);
+  display:flex; flex-direction:column; align-items:center; justify-content:flex-start;
+  min-height:100vh; padding:20px; text-align:center; color:#fff;
+}
+h1 { font-size:2.5rem; text-shadow:2px 2px 10px rgba(0,0,0,0.3); margin-bottom:20px;}
+.option-row { display:flex; margin-top:10px; align-items:center; }
+.option-row input { flex:1; padding:8px 10px; border-radius:8px; border:none; font-size:1rem; margin-right:10px; }
+.option-row button { padding:6px 12px; border:none; border-radius:6px; background:#ff4b4b; color:#fff; cursor:pointer; }
+#addOption { margin-top:20px; padding:10px 20px; border:none; border-radius:50px; background:#ff914d; cursor:pointer; color:#fff; font-size:1rem; box-shadow:0 5px 10px rgba(0,0,0,0.2);}
+#drawBtn { margin-top:20px; padding:18px 50px; font-size:1.3rem;
+ background:linear-gradient(45deg,#ff4b4b,#ff914d); border:none; border-radius:50px;
+ cursor:pointer; box-shadow:0 8px 15px rgba(0,0,0,0.3); color:#fff; transition: all 0.3s;}
+#drawBtn:hover { transform: scale(1.05); box-shadow:0 12px 20px rgba(0,0,0,0.4);}
+#result { font-size:2rem; padding:20px 40px; border-radius:20px;
+ background: rgba(255,255,255,0.3); backdrop-filter: blur(5px); margin-top:20px; min-width:250px;
+ transition: all 0.5s; transform: scale(1); color:#ff3b3b;}
+#tip { margin-top:15px; font-size:1rem; opacity:0.9; transition: opacity 1s;}
+footer { margin-top:30px; font-size:0.9rem; color:rgba(255,255,255,0.8);}
+.particle { position:absolute; border-radius:50%; opacity:0.7; pointer-events:none; animation:rise 4s ease-in; }
+@keyframes rise {0% {transform: translateY(0) scale(0.5);}50% {opacity:1;}100% {transform: translateY(-200px) scale(0.8); opacity:0;}}
+</style>
+</head>
+<body>
+
+<h1>家的味道 · 自定义抽签</h1>
+
+<div id="optionsContainer"></div>
+<button id="addOption">+ 添加选项</button>
+
+<button id="drawBtn">抽一签</button>
+<div id="result">等待抽签...</div>
+<div id="tip">家，是最温暖的港湾</div>
+<footer>温馨提示：再忙都要好好吃饭 ❤️</footer>
+
+<script>
+// 倒数语音
+const speech = text => {
+  const u = new SpeechSynthesisUtterance(text);
+  u.lang='zh-CN';
+  speechSynthesis.speak(u);
+}
+
+// 温暖文案
+const tips = [
+  "再忙都要好好吃饭",
+  "家，是最温暖的港湾",
+  "每一口都是家的味道",
+  "慢慢享受温暖时光",
+  "今天也要开心用餐"
+]
+
+const optionsContainer = document.getElementById('optionsContainer');
+const addOptionBtn = document.getElementById('addOption');
+const drawBtn = document.getElementById('drawBtn');
+const result = document.getElementById('result');
+const tipDiv = document.getElementById('tip');
+
+// 初始化 3 个输入框
+for(let i=0;i<3;i++) addOption();
+
+// 添加选项函数
+function addOption(value='') {
+  const row = document.createElement('div');
+  row.className='option-row';
+  const input = document.createElement('input');
+  input.type='text';
+  input.value=value;
+  input.placeholder='输入选项';
+  const delBtn = document.createElement('button');
+  delBtn.textContent='删除';
+  delBtn.onclick = ()=>{ row.remove(); };
+  row.appendChild(input);
+  row.appendChild(delBtn);
+  optionsContainer.appendChild(row);
+}
+
+// 添加新选项按钮事件
+addOptionBtn.onclick = ()=>addOption();
+
+// 粒子特效
+function createParticle() {
+  const particle = document.createElement('div');
+  particle.className='particle';
+  particle.style.width = particle.style.height = Math.random()*10+5+'px';
+  particle.style.background=`rgba(255,${Math.floor(Math.random()*200+55)},0,0.7)`;
+  particle.style.left = Math.random()*window.innerWidth+'px';
+  particle.style.top = window.innerHeight+'px';
+  document.body.appendChild(particle);
+  setTimeout(()=>particle.remove(),4000);
+}
+
+// 抽签逻辑
+drawBtn.onclick = async ()=>{
+  const inputs = Array.from(document.querySelectorAll('#optionsContainer input'));
+  const options = inputs.map(i=>i.value.trim()).filter(v=>v!=='');
+  if(options.length===0){ alert('请先添加至少一个选项！'); return; }
+
+  result.innerText='准备中...';
+  result.style.transform='scale(1.2)';
+
+  for(let i=3;i>0;i--){
+    speech(i.toString());
+    result.innerText=i;
+    await new Promise(r=>setTimeout(r,1000));
+    createParticle();
+  }
+
+  const idx = Math.floor(Math.random()*options.length);
+  result.innerText = options[idx];
+  result.style.transform='scale(1.3)';
+  result.style.color='#ff6b00';
+  setTimeout(()=>result.style.transform='scale(1)',500);
+
+  // 温暖文案
+  tipDiv.innerText = tips[Math.floor(Math.random()*tips.length)];
+}
+</script>
+</body>
+</html>
