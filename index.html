@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<!-- Browser tab title -->
+<title>家。。。的味道｜今晚吃什么</title>
+
+<style>
+:root{
+  --neon:#00f6ff;
+  --bg:#02040a;
+}
+
+*{
+  box-sizing:border-box;
+  font-family: Orbitron, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI";
+}
+
+body{
+  margin:0;
+  min-height:100vh;
+  background:
+    radial-gradient(circle at 50% 20%, #0a3d5c, var(--bg)),
+    repeating-linear-gradient(
+      90deg,
+      rgba(0,246,255,.04) 0,
+      rgba(0,246,255,.04) 1px,
+      transparent 1px,
+      transparent 80px
+    );
+  color:var(--neon);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  overflow:hidden;
+}
+
+/* background glow */
+.glow{
+  position:absolute;
+  inset:0;
+  background:radial-gradient(circle at center, transparent 60%, rgba(0,246,255,.15));
+  animation:pulse 4s infinite;
+  pointer-events:none;
+}
+@keyframes pulse{
+  0%,100%{opacity:.4}
+  50%{opacity:1}
+}
+
+.panel{
+  width:min(92vw,900px);
+  border:2px solid var(--neon);
+  border-radius:20px;
+  padding:30px;
+  background:rgba(0,246,255,.06);
+  box-shadow:0 0 40px rgba(0,246,255,.9);
+  position:relative;
+  z-index:1;
+}
+
+h1{
+  text-align:center;
+  font-size:44px;
+  letter-spacing:6px;
+  margin:0;
+  text-shadow:0 0 30px var(--neon);
+}
+
+/* subtitle */
+.subtitle{
+  text-align:center;
+  margin-top:10px;
+  margin-bottom:20px;
+  font-size:18px;
+  opacity:0.85;
+  letter-spacing:2px;
+}
+
+textarea{
+  width:100%;
+  height:160px;
+  background:#000;
+  color:var(--neon);
+  border:1px solid var(--neon);
+  border-radius:12px;
+  padding:14px;
+  font-size:16px;
+}
+
+button{
+  margin-top:18px;
+  width:100%;
+  padding:16px;
+  font-size:18px;
+  letter-spacing:6px;
+  border:none;
+  border-radius:14px;
+  background:linear-gradient(90deg,#00f6ff,#6fffff,#00f6ff);
+  color:#000;
+  cursor:pointer;
+  box-shadow:0 0 30px rgba(0,246,255,1);
+  animation:btn 2s infinite;
+}
+@keyframes btn{
+  50%{box-shadow:0 0 60px rgba(0,246,255,1)}
+}
+
+.stage{
+  margin-top:26px;
+  height:180px;
+  border:2px dashed var(--neon);
+  border-radius:16px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  position:relative;
+  overflow:hidden;
+}
+
+.scan{
+  position:absolute;
+  inset:0;
+  background:linear-gradient(
+    180deg,
+    transparent,
+    rgba(0,246,255,.4),
+    transparent
+  );
+  animation:scan 1.2s linear infinite;
+}
+@keyframes scan{
+  to{transform:translateY(100%)}
+}
+
+.result{
+  font-size:38px;
+  text-shadow:0 0 50px var(--neon);
+  animation:flash 1s infinite;
+}
+@keyframes flash{
+  50%{opacity:.4}
+}
+</style>
+</head>
+
+<body>
+<div class="glow"></div>
+
+<div class="panel">
+  <!-- Main title -->
+  <h1>家。。。的味道</h1>
+  <div class="subtitle">今晚吃什么</div>
+
+  <textarea id="opt" placeholder="输入今晚想吃的东西（一行一个）
+可以加权重，例如：火锅|3"></textarea>
+
+  <button onclick="draw()">🍽 决定今晚吃什么 🍽</button>
+
+  <div class="stage">
+    <div class="scan"></div>
+    <div id="res" class="result">系统待命中…</div>
+  </div>
+</div>
+
+<script>
+function draw(){
+  const lines = document.getElementById('opt').value
+    .trim()
+    .split(/\n+/)
+    .filter(Boolean);
+
+  let pool = [];
+  lines.forEach(line=>{
+    let [name, weight] = line.split('|');
+    weight = parseInt(weight || 1);
+    for(let i=0;i<weight;i++){
+      pool.push(name);
+    }
+  });
+
+  if(pool.length === 0) return;
+
+  const res = document.getElementById('res');
+  let roll = setInterval(()=>{
+    res.textContent = pool[Math.floor(Math.random()*pool.length)];
+  },50);
+
+  setTimeout(()=>{
+    clearInterval(roll);
+    res.textContent = pool[Math.floor(Math.random()*pool.length)];
+  },1500);
+}
+</script>
+
+</body>
+</html>
